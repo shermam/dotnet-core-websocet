@@ -34,6 +34,8 @@ namespace dotnet_core_websocet
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
             app.UseMvc();
         }
     }
