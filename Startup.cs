@@ -38,10 +38,10 @@ namespace dotnet_core_websocet
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseWebSockets();
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc();
+            app.UseWebSockets();
             app.UseWebSocketConnection();
 
         }
