@@ -11,7 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using WebSocketMiddleware;
+using WebSocketService;
 
 namespace dotnet_core_websocet
 {
@@ -20,14 +22,17 @@ namespace dotnet_core_websocet
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            WebSocketService = new NotificationWebSocketService();
         }
 
         public IConfiguration Configuration { get; }
+        public IWebSocketService<Message> WebSocketService { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddSingleton(WebSocketService);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,11 +43,17 @@ namespace dotnet_core_websocet
                 app.UseDeveloperExceptionPage();
             }
 
+            WebSocketOptions options = new WebSocketOptions
+            {
+                KeepAliveInterval = new TimeSpan(0, 2, 0),
+                ReceiveBufferSize = 1024 * 8
+            };
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc();
-            app.UseWebSockets();
-            app.UseWebSocketConnection();
+            app.UseWebSockets(options);
+            app.UseWebSocketConnection(options, WebSocketService);
 
         }
     }

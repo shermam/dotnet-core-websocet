@@ -3,12 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using WebSocketService;
 
 namespace dotnet_core_websocet.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
+        private IWebSocketService<Message> _service { get; set; }
+        public ValuesController(IWebSocketService<Message> service)
+        {
+            _service = service;
+        }
+
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
@@ -27,6 +34,7 @@ namespace dotnet_core_websocet.Controllers
         [HttpPost]
         public void Post([FromBody]string value)
         {
+            _service.Broadcast(new Message { MessageValue = value });
         }
 
         // PUT api/values/5
