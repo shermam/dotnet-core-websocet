@@ -65,7 +65,7 @@ namespace dotnet_core_websocet
         public TypeMessage Type { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public Operation operation { get; set; }
-        public string MessageValue { get; set; }
+        public object MessageValue { get; set; }
     }
 
     public class Client
