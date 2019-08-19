@@ -48,13 +48,13 @@ namespace WebSocketMiddleware
         {            
             var buffer = new byte[_options.ReceiveBufferSize];
             WebSocketReceiveResult result;
-            
-            do {
+
+            while(true) {
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                if (result.CloseStatus.HasValue) break;
                 var stringValue = Encoding.UTF8.GetString(new ArraySegment<byte>(buffer, 0, result.Count).ToArray());
                 _service.ReceiveMessage(JsonConvert.DeserializeObject<TMessage>(stringValue), client);
-
-            } while (!result.CloseStatus.HasValue) ;
+            }
 
             await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
             _service.RemoveClient(client);
@@ -64,8 +64,15 @@ namespace WebSocketMiddleware
     public static class WebSocketMiddlewareExtensions
     {
         public static IApplicationBuilder UseWebSocketConnection<TMessage>(
-            this IApplicationBuilder builder, WebSocketOptions options, IWebSocketService<TMessage> service)
+            this IApplicationBuilder builder, IWebSocketService<TMessage> service, WebSocketOptions options = null)
         {
+            options = options ?? new WebSocketOptions
+            {
+                KeepAliveInterval = new TimeSpan(0, 2, 0),
+                ReceiveBufferSize = 1024 * 4
+            };
+
+            builder.UseWebSockets(options);
             return builder.UseMiddleware<WebSocketMiddleware<TMessage>>(options, service);
         }
     }

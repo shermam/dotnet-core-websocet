@@ -43,17 +43,10 @@ namespace dotnet_core_websocet
                 app.UseDeveloperExceptionPage();
             }
 
-            WebSocketOptions options = new WebSocketOptions
-            {
-                KeepAliveInterval = new TimeSpan(0, 2, 0),
-                ReceiveBufferSize = 1024 * 8
-            };
-
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseMvc();
-            app.UseWebSockets(options);
-            app.UseWebSocketConnection(options, WebSocketService);
+            app.UseWebSocketConnection(WebSocketService);
 
         }
     }
